@@ -1,29 +1,38 @@
+"use client";
+
 import { Clock, Calendar, History, ArrowRight, UserCircle } from "lucide-react";
 import Link from "next/link";
+import { useNightTalkStore } from "@/store/useNightTalkStore";
 
 export default function UserDashboard() {
-  // Static mock data for MVP
-  const upcomingSessions = [
-    { id: 1, date: "Tonight, 11:30 PM", duration: "20 Mins", status: "Scheduled" }
-  ];
+  const { sessions, isInstantActive } = useNightTalkStore();
 
-  const pastSessions = [
-    { id: 2, date: "Yesterday, 10:00 PM", duration: "15 Mins", type: "Instant" },
-    { id: 3, date: "Oct 12, 12:15 AM", duration: "20 Mins", type: "Scheduled" },
+  const upcomingSessions = sessions.filter(
+    (s) => s.status === "upcoming" || s.status === "pending"
+  );
+
+  const pastSessions = sessions.filter(
+    (s) => s.status === "completed"
+  );
+  
+  // Adding some static past ones to make it look populated for MVP
+  const samplePastSessions = [
+    { id: "past-1", date: "Yesterday, 10:00 PM", duration: "15 mins", type: "Instant" },
+    { id: "past-2", date: "Oct 12, 12:15 AM", duration: "20 mins", type: "Scheduled" },
   ];
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-200 p-6 md:p-12 font-sans selection:bg-indigo-500/30">
+    <div className="min-h-screen text-slate-800 p-6 md:p-12 font-sans">
       <div className="max-w-4xl mx-auto space-y-12">
         
         {/* Header */}
-        <header className="flex items-center justify-between border-b border-slate-800 pb-8">
+        <header className="flex items-center justify-between border-b border-orange-200 pb-8">
           <div>
-            <h1 className="text-3xl font-bold text-white tracking-tight">Welcome back</h1>
-            <p className="text-slate-400 mt-1">Your safe space awaits.</p>
+            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Welcome back</h1>
+            <p className="text-slate-500 mt-1">Your safe space awaits.</p>
           </div>
-          <div className="p-3 bg-slate-900 rounded-full border border-slate-800">
-            <UserCircle className="w-8 h-8 text-indigo-400" />
+          <div className="p-3 bg-white rounded-full border border-orange-200 shadow-sm">
+            <UserCircle className="w-8 h-8 text-orange-400" />
           </div>
         </header>
 
@@ -34,18 +43,24 @@ export default function UserDashboard() {
             
             {/* Upcoming Sessions */}
             <section className="space-y-4">
-              <div className="flex items-center space-x-2 text-indigo-300">
+              <div className="flex items-center space-x-2 text-orange-500">
                 <Calendar className="w-5 h-5" />
-                <h2 className="text-xl font-semibold">Upcoming Sessions</h2>
+                <h2 className="text-xl font-semibold text-slate-900">Upcoming Sessions</h2>
               </div>
               
+              {upcomingSessions.length === 0 && (
+                <div className="p-8 text-center bg-white border border-orange-200 rounded-2xl border-dashed">
+                  <p className="text-slate-500">No upcoming sessions</p>
+                </div>
+              )}
+
               {upcomingSessions.map((session) => (
-                <div key={session.id} className="p-6 rounded-2xl bg-indigo-900/10 border border-indigo-500/20 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div key={session.id} className="p-6 rounded-2xl bg-white shadow-md shadow-orange-900/5 border border-orange-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div>
-                    <p className="text-white font-medium text-lg">{session.date}</p>
-                    <p className="text-indigo-300/80 text-sm mt-1">{session.duration} • {session.status}</p>
+                    <p className="text-slate-900 font-medium text-lg">{session.time}</p>
+                    <p className="text-slate-500 text-sm mt-1">{session.duration} • {session.mode}</p>
                   </div>
-                  <button className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium rounded-xl transition-colors">
+                  <button className="px-5 py-2.5 bg-orange-500 hover:bg-orange-600 shadow-md shadow-orange-500/20 text-white text-sm font-medium rounded-xl transition-colors">
                     Join Waiting Room
                   </button>
                 </div>
@@ -54,16 +69,16 @@ export default function UserDashboard() {
 
             {/* Past Sessions */}
             <section className="space-y-4 pt-4">
-              <div className="flex items-center space-x-2 text-slate-400">
+              <div className="flex items-center space-x-2 text-slate-500">
                 <History className="w-5 h-5" />
-                <h2 className="text-xl font-semibold text-slate-300">Past History</h2>
+                <h2 className="text-xl font-semibold text-slate-800">Past History</h2>
               </div>
               
               <div className="space-y-3">
-                {pastSessions.map((session) => (
-                  <div key={session.id} className="p-5 rounded-2xl bg-slate-900/50 border border-slate-800 flex items-center justify-between">
+                {samplePastSessions.map((session) => (
+                  <div key={session.id} className="p-5 rounded-2xl bg-white border border-slate-100 shadow-sm flex items-center justify-between">
                     <div>
-                      <p className="text-slate-200 font-medium">{session.date}</p>
+                      <p className="text-slate-700 font-medium">{session.date}</p>
                       <p className="text-slate-500 text-sm mt-0.5">{session.duration} • {session.type}</p>
                     </div>
                   </div>
@@ -74,19 +89,23 @@ export default function UserDashboard() {
 
           {/* Sidebar / Quick Actions */}
           <div className="space-y-6">
-            <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800 shadow-xl shadow-black/50">
-              <h3 className="text-lg font-bold text-white mb-2">Need someone to listen?</h3>
-              <p className="text-sm text-slate-400 mb-6 pb-6 border-b border-slate-800">
-                Listeners are currently online and available for instant connection.
+            <div className="p-6 rounded-3xl bg-gradient-to-br from-orange-400 to-rose-400 border border-orange-200 shadow-xl shadow-orange-500/20 text-white">
+              <h3 className="text-lg font-bold mb-2">Need someone to listen?</h3>
+              <p className="text-sm text-orange-50 mb-6 pb-6 border-b border-orange-300/30">
+                {isInstantActive 
+                  ? "Listeners are currently online and available for instant connection."
+                  : "All listeners are currently offline. Check back later or schedule a session."}
               </p>
               
-              <Link href="/" className="w-full flex items-center justify-center space-x-2 py-3.5 bg-white text-slate-950 font-bold rounded-xl hover:bg-slate-200 transition-all">
-                <span>Talk Now</span>
-                <ArrowRight className="w-4 h-4" />
-              </Link>
+              {isInstantActive && (
+                <Link href="/" className="w-full flex items-center justify-center space-x-2 py-3.5 bg-white text-orange-600 font-bold rounded-xl hover:bg-orange-50 transition-all shadow-md">
+                  <span>Talk Now</span>
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              )}
             </div>
             
-            <div className="p-6 rounded-3xl bg-slate-900/30 border border-slate-800/50 text-center">
+             <div className="p-6 rounded-3xl bg-orange-100/50 border border-orange-200 text-center">
               <p className="text-xs text-slate-500 leading-relaxed">
                 NightTalk is a safe, anonymous space. All sessions are strictly confidential.
               </p>

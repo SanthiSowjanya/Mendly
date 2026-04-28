@@ -1,24 +1,36 @@
 "use client";
 
 import { useState } from "react";
-import { Moon, Clock, Zap, ArrowRight, ShieldCheck, CheckCircle2, QrCode } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
+import { Moon, Clock, Zap, ArrowRight, ShieldCheck, CheckCircle2, QrCode, Loader2 } from "lucide-react";
+import { useNightTalkStore } from "@/store/useNightTalkStore";
+import { Button } from "@/components/ui/Button";
 
 type FlowStep = "landing" | "mode_selection" | "duration_selection" | "payment" | "booking";
-type Mode = "scheduled" | "instant" | null;
+type Mode = "Scheduled" | "Instant" | null;
 
 interface DurationOption {
   mins: number;
   price: number;
   label?: string;
+  durationLabel: string;
 }
 
+const fadeVariants = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
+  exit: { opacity: 0, y: -20, transition: { duration: 0.3, ease: "easeIn" } }
+};
+
 export default function Home() {
+  const router = useRouter();
   const [step, setStep] = useState<FlowStep>("landing");
   const [selectedMode, setSelectedMode] = useState<Mode>(null);
   const [selectedDuration, setSelectedDuration] = useState<DurationOption | null>(null);
+  const [isVerifying, setIsVerifying] = useState(false);
 
-  // MANUALLY TOGGLE THIS TO TEST INSTANT AVAILABILITY
-  const isInstantAvailable = true;
+  const { isInstantActive, addSession } = useNightTalkStore();
 
   const handleStart = () => setStep("mode_selection");
   
@@ -33,267 +45,335 @@ export default function Home() {
   };
 
   const handlePaymentComplete = () => {
-    setStep("booking");
+    setIsVerifying(true);
+    // Simulate verification delay
+    setTimeout(() => {
+      setIsVerifying(false);
+      
+      // Store session in mock store
+      if (selectedMode && selectedDuration) {
+        addSession({
+          user: `Anonymous ${Math.floor(Math.random() * 100)}`,
+          mode: selectedMode,
+          duration: selectedDuration.durationLabel,
+          time: selectedMode === "Instant" ? "Waiting now" : "Upcoming",
+          status: selectedMode === "Instant" ? "pending" : "upcoming"
+        });
+      }
+
+      setStep("booking");
+    }, 2000);
   };
 
   // Duration options based on MVP specs
   const scheduledOptions: DurationOption[] = [
-    { mins: 10, price: 50, label: "Base" },
-    { mins: 20, price: 99, label: "Recommended" },
+    { mins: 10, price: 50, label: "Base", durationLabel: "10 mins" },
+    { mins: 20, price: 99, label: "Recommended", durationLabel: "20 mins" },
   ];
 
   const instantOptions: DurationOption[] = [
-    { mins: 15, price: 149, label: "Premium Instant" },
-    { mins: 20, price: 199, label: "Premium Instant" },
+    { mins: 15, price: 149, label: "Premium Instant", durationLabel: "15 mins" },
+    { mins: 20, price: 199, label: "Premium Instant", durationLabel: "20 mins" },
   ];
 
-  const currentOptions = selectedMode === "scheduled" ? scheduledOptions : instantOptions;
+  const currentOptions = selectedMode === "Scheduled" ? scheduledOptions : instantOptions;
 
   return (
-    <main className="flex-1 flex flex-col items-center justify-center p-6 md:p-12 max-w-2xl mx-auto w-full relative z-10">
+    <main className="flex-1 flex flex-col items-center justify-center p-6 md:p-12 max-w-2xl mx-auto w-full relative z-10 min-h-[calc(100vh-64px)] overflow-hidden">
       
       {/* Background FX (Smooth dynamic gradient) */}
-      <div className="fixed inset-0 pointer-events-none z-[-1]">
-        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-indigo-900/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-slate-800/30 rounded-full blur-3xl" />
+      <div className="fixed inset-0 pointer-events-none z-[-1] overflow-hidden bg-orange-50/50">
+        <div className="absolute top-[-10%] left-[-10%] w-[60vw] h-[60vw] max-w-[800px] max-h-[800px] bg-orange-300/30 rounded-full blur-[120px] mix-blend-multiply animate-pulse" style={{ animationDuration: '8s' }} />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] max-w-[600px] max-h-[600px] bg-rose-300/30 rounded-full blur-[100px] mix-blend-multiply animate-pulse" style={{ animationDuration: '10s' }} />
       </div>
 
-      {/* ----------- STEP 1: LANDING ----------- */}
-      {step === "landing" && (
-        <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 flex flex-col items-center text-center space-y-8 mt-12">
-          <div className="p-4 bg-slate-900 shadow-2xl shadow-indigo-500/10 rounded-3xl border border-slate-800">
-            <Moon className="w-12 h-12 text-indigo-400" />
-          </div>
-          <div className="space-y-4">
-            <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight text-white drop-shadow-md">
-              NightTalk
-            </h1>
-            <p className="text-xl md:text-2xl font-light text-slate-400 max-w-xl mx-auto leading-relaxed">
-              You don’t need solutions. <br className="hidden md:block" />
-              <span className="text-indigo-300 font-medium">You just need someone to listen.</span>
-            </p>
-          </div>
-          
-          <div className="pt-8">
-            <button
-              onClick={handleStart}
-              className="group relative inline-flex h-14 items-center justify-center overflow-hidden rounded-full bg-indigo-600 px-10 font-medium text-white shadow-xl shadow-indigo-600/20 transition-all hover:bg-indigo-500 hover:scale-105 active:scale-95"
-            >
-              <span className="mr-3 text-lg">Start Talking</span>
-              <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
-            </button>
-          </div>
-
-          <div className="mt-16 flex items-center justify-center space-x-2 text-sm text-slate-500 bg-slate-900/50 px-5 py-2.5 rounded-full border border-slate-800/60 backdrop-blur-sm">
-            <ShieldCheck className="w-4 h-4 text-emerald-500/80" />
-            <span>100% Anonymous. Safe space. No judgment.</span>
-          </div>
-        </div>
-      )}
-
-      {/* ----------- STEP 2: MODE SELECTION ----------- */}
-      {step === "mode_selection" && (
-        <div className="animate-in fade-in slide-in-from-right-4 duration-500 w-full space-y-8">
-          <div className="text-center space-y-2 mb-10">
-            <h2 className="text-3xl font-bold text-slate-100">How would you like to connect?</h2>
-            <p className="text-slate-400">Choose a session type that works for you.</p>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-5">
-            {/* Scheduled Option */}
-            <button
-              onClick={() => handleModeSelect("scheduled")}
-              className="flex flex-col text-left p-6 md:p-8 rounded-3xl border border-slate-800 bg-slate-900/60 hover:bg-slate-800/80 hover:border-slate-700 transition-all group"
-            >
-              <div className="mb-4 p-3 bg-slate-800 rounded-2xl w-fit group-hover:bg-slate-700 transition-colors">
-                <Clock className="w-6 h-6 text-blue-400" />
-              </div>
-              <h3 className="text-xl font-semibold text-slate-200 mb-2">Scheduled Session</h3>
-              <p className="text-sm text-slate-400">Book in advance. Structured availability. Lower pricing.</p>
-            </button>
-
-            {/* Instant Option */}
-            <button
-              onClick={() => isInstantAvailable ? handleModeSelect("instant") : null}
-              disabled={!isInstantAvailable}
-              className={`flex flex-col text-left p-6 md:p-8 rounded-3xl border transition-all group ${
-                isInstantAvailable 
-                  ? "border-indigo-800/50 bg-indigo-900/20 hover:bg-indigo-900/40 hover:border-indigo-700/80 shadow-[0_0_30px_-10px_rgba(79,70,229,0.2)]" 
-                  : "border-slate-800 bg-slate-900/30 opacity-60 cursor-not-allowed"
-              }`}
-            >
-              <div className={`mb-4 p-3 rounded-2xl w-fit transition-colors ${isInstantAvailable ? 'bg-indigo-900/50 group-hover:bg-indigo-800/60' : 'bg-slate-800'}`}>
-                <Zap className={`w-6 h-6 ${isInstantAvailable ? 'text-amber-400 animate-pulse' : 'text-slate-500'}`} />
-              </div>
-              <h3 className="text-xl font-semibold text-slate-200 mb-2 flex items-center justify-between w-full">
-                Instant Talk
-                {isInstantAvailable && (
-                  <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-1 bg-amber-500/20 text-amber-300 rounded-full">Available Now</span>
-                )}
-              </h3>
-              <p className="text-sm text-slate-400">
-                {isInstantAvailable 
-                  ? "Talk immediately to an available listener." 
-                  : "Listeners are currently offline. Please use scheduled."}
+      <AnimatePresence mode="wait">
+        {/* ----------- STEP 1: LANDING ----------- */}
+        {step === "landing" && (
+          <motion.div 
+            key="landing"
+            variants={fadeVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            className="flex flex-col items-center text-center space-y-8 mt-12"
+          >
+            <div className="p-5 bg-white shadow-xl shadow-orange-500/10 rounded-3xl border border-orange-100 relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-tr from-orange-100 to-transparent" />
+              <Moon className="w-14 h-14 text-orange-500 relative z-10" />
+            </div>
+            <div className="space-y-5">
+              <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-slate-900 drop-shadow-sm">
+                NightTalk
+              </h1>
+              <p className="text-xl md:text-2xl font-light text-slate-600 max-w-xl mx-auto leading-relaxed">
+                You don’t need solutions. <br className="hidden md:block" />
+                <span className="text-orange-600 font-medium tracking-wide">You just need someone to listen.</span>
               </p>
-            </button>
-          </div>
-          
-          <button 
-            onClick={() => setStep("landing")}
-            className="text-slate-500 text-sm hover:text-slate-300 transition-colors mx-auto block mt-8"
-          >
-            ← Back
-          </button>
-        </div>
-      )}
-
-      {/* ----------- STEP 3: DURATION SELECTION ----------- */}
-      {step === "duration_selection" && (
-        <div className="animate-in fade-in slide-in-from-right-4 duration-500 w-full max-w-md mx-auto space-y-8">
-           <div className="text-center space-y-2 mb-8">
-            <h2 className="text-3xl font-bold text-slate-100">Choose Duration</h2>
-            <p className="text-slate-400">
-              {selectedMode === "instant" ? "Fast tracked instant connection." : "Select how long you'd like to talk."}
-            </p>
-          </div>
-
-          <div className="space-y-4">
-            {currentOptions.map((opt, i) => (
-              <button
-                key={i}
-                onClick={() => handleDurationSelect(opt)}
-                className="w-full relative flex items-center justify-between p-5 rounded-2xl border border-slate-800 bg-slate-900/80 hover:border-indigo-500/50 hover:bg-slate-800 transition-all group"
+            </div>
+            
+            <div className="pt-8">
+              <Button
+                size="lg"
+                onClick={handleStart}
+                className="group w-full sm:w-auto h-14 rounded-full px-10 text-lg bg-gradient-to-r from-orange-400 to-rose-400 hover:from-orange-500 hover:to-rose-500 text-white shadow-[0_0_30px_-5px_rgba(251,146,60,0.4)] hover:shadow-[0_0_40px_0px_rgba(251,146,60,0.6)] transition-all duration-300 hover:scale-105 border border-orange-200"
               >
-                {opt.label && (
-                  <span className="absolute -top-3 left-6 px-3 py-0.5 text-[10px] uppercase font-bold tracking-wider rounded-full bg-slate-800 text-slate-300 border border-slate-700">
-                    {opt.label}
-                  </span>
-                )}
-                <div className="flex items-center space-x-4">
-                  <div className="p-3 bg-slate-800 rounded-xl">
-                    <Clock className="w-5 h-5 text-slate-300" />
-                  </div>
-                  <span className="text-xl font-medium text-slate-200">{opt.mins} Mins</span>
+                <span className="mr-3">Start Talking</span>
+                <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+              </Button>
+            </div>
+
+            <div className="mt-16 flex items-center justify-center space-x-2 text-sm text-slate-600 bg-white/80 px-5 py-2.5 rounded-full border border-orange-200/60 backdrop-blur-sm shadow-sm">
+              <ShieldCheck className="w-4 h-4 text-emerald-500" />
+              <span>100% Anonymous. Safe space. No judgment.</span>
+            </div>
+          </motion.div>
+        )}
+
+        {/* ----------- STEP 2: MODE SELECTION ----------- */}
+        {step === "mode_selection" && (
+          <motion.div 
+            key="mode_selection"
+            variants={fadeVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            className="w-full space-y-8"
+          >
+            <div className="text-center space-y-2 mb-10">
+              <h2 className="text-3xl font-bold text-slate-900">How would you like to connect?</h2>
+              <p className="text-slate-600">Choose a session type that works for you.</p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-5">
+              <button
+                onClick={() => handleModeSelect("Scheduled")}
+                className="flex flex-col text-left p-6 md:p-8 rounded-3xl border border-orange-100 bg-white hover:bg-orange-50 hover:border-orange-200 transition-all duration-300 group shadow-xl shadow-orange-900/5"
+              >
+                <div className="mb-5 p-3 bg-orange-100 rounded-2xl w-fit group-hover:scale-110 group-hover:bg-orange-200 transition-all duration-300">
+                  <Clock className="w-7 h-7 text-orange-600" />
                 </div>
-                <div className="text-right">
-                  <span className="text-xl font-bold text-white">₹{opt.price}</span>
-                </div>
+                <h3 className="text-xl font-semibold text-slate-900 mb-2 tracking-wide">Scheduled Session</h3>
+                <p className="text-sm text-slate-500 leading-relaxed">Book in advance. Structured availability. Lower pricing.</p>
               </button>
-            ))}
-          </div>
 
-          <button 
-            onClick={() => setStep("mode_selection")}
-            className="text-slate-500 text-sm hover:text-slate-300 transition-colors mx-auto block mt-8"
-          >
-            ← Back
-          </button>
-        </div>
-      )}
-
-      {/* ----------- STEP 4: PAYMENT ----------- */}
-      {step === "payment" && selectedDuration && (
-        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 w-full max-w-md mx-auto">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 text-center space-y-8 shadow-2xl">
-            <div className="space-y-2">
-              <h2 className="text-2xl font-bold text-white">Complete Payment</h2>
-              <p className="text-slate-400">Scan to pay exactly <strong className="text-white">₹{selectedDuration.price}</strong> for {selectedDuration.mins} mins.</p>
-            </div>
-
-            {/* Dummy QR Code UI */}
-            <div className="bg-white p-4 rounded-3xl inline-block mx-auto">
-              <div className="w-48 h-48 bg-slate-100 rounded-2xl flex items-center justify-center border-2 border-dashed border-slate-300">
-                <QrCode className="w-16 h-16 text-slate-400" />
-              </div>
-            </div>
-
-            <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 text-sm text-slate-300 break-all flex items-center justify-center space-x-2">
-              <span>UPI ID: <strong className="text-white selection:bg-indigo-500/40">placeholder@upi</strong></span>
-            </div>
-
-            <div className="pt-4 border-t border-slate-800">
-              <p className="text-xs text-slate-500 mb-6 px-4">After paying, click the button below to secure your session.</p>
               <button
-                onClick={handlePaymentComplete}
-                className="w-full flex items-center justify-center space-x-2 py-4 rounded-xl bg-white text-slate-950 font-bold hover:bg-slate-200 transition-colors"
+                onClick={() => isInstantActive ? handleModeSelect("Instant") : null}
+                disabled={!isInstantActive}
+                className={`flex flex-col text-left p-6 md:p-8 rounded-3xl border transition-all duration-300 group shadow-xl ${
+                  isInstantActive 
+                    ? "border-rose-200 bg-white hover:bg-rose-50 hover:border-rose-300 shadow-rose-900/5" 
+                    : "border-slate-200 bg-slate-50 opacity-60 cursor-not-allowed"
+                }`}
               >
-                <CheckCircle2 className="w-5 h-5" />
-                <span>I have made the payment</span>
+                <div className={`mb-5 p-3 rounded-2xl w-fit transition-all duration-300 ${isInstantActive ? 'bg-rose-100 group-hover:scale-110' : 'bg-slate-200'}`}>
+                  <Zap className={`w-7 h-7 ${isInstantActive ? 'text-rose-500 animate-pulse' : 'text-slate-400'}`} />
+                </div>
+                <h3 className="text-xl font-semibold text-slate-900 mb-2 flex items-center justify-between w-full tracking-wide">
+                  Instant Talk
+                  {isInstantActive && (
+                    <span className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 bg-rose-100 border border-rose-200 text-rose-600 rounded-full mt-1">Available Now</span>
+                  )}
+                </h3>
+                <p className="text-sm text-slate-500 leading-relaxed">
+                  {isInstantActive 
+                    ? "Talk immediately to an available listener." 
+                    : "Listeners are currently offline. Please use scheduled."}
+                </p>
               </button>
             </div>
             
             <button 
-              onClick={() => setStep("duration_selection")}
-              className="text-slate-500 text-sm hover:text-slate-300 transition-colors mx-auto block"
+              onClick={() => setStep("landing")}
+              className="text-slate-400 text-sm hover:text-slate-600 transition-colors mx-auto block mt-8 font-medium"
             >
-              Cancel
+              ← Back
             </button>
-          </div>
-        </div>
-      )}
+          </motion.div>
+        )}
 
-      {/* ----------- STEP 5: BOOKING CONNECT ----------- */}
-      {step === "booking" && (
-        <div className="animate-in fade-in zoom-in-95 duration-700 w-full max-w-md mx-auto text-center space-y-8">
-           <div className="w-20 h-20 bg-emerald-500/10 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-6">
-            <CheckCircle2 className="w-10 h-10" />
-          </div>
-          
-          <div className="space-y-4">
-            <h2 className="text-3xl font-bold text-white">Payment Confirmed</h2>
-            <p className="text-slate-400 text-lg">Your safe space is ready.</p>
-          </div>
+        {/* ----------- STEP 3: DURATION SELECTION ----------- */}
+        {step === "duration_selection" && (
+          <motion.div 
+            key="duration_selection"
+            variants={fadeVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            className="w-full max-w-md mx-auto space-y-8"
+          >
+             <div className="text-center space-y-2 mb-8">
+              <h2 className="text-3xl font-bold text-slate-900">Choose Duration</h2>
+              <p className="text-slate-600">
+                {selectedMode === "Instant" ? "Fast tracked instant connection." : "Select how long you'd like to talk."}
+              </p>
+            </div>
 
-          <div className="p-8 bg-slate-900 border border-slate-800 rounded-3xl mt-8">
-            {selectedMode === "scheduled" ? (
-              <div className="space-y-6">
-                <p className="text-slate-300">Pick a time slot for your {selectedDuration?.mins}-minute session using our calendar below.</p>
-                <a
-                  href="#"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="block w-full py-4 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-500 transition-colors"
+            <div className="space-y-4">
+              {currentOptions.map((opt, i) => (
+                <button
+                  key={i}
+                  onClick={() => handleDurationSelect(opt)}
+                  className="w-full relative flex items-center justify-between p-5 rounded-2xl border border-orange-100 bg-white hover:border-orange-300 hover:bg-orange-50 hover:shadow-lg transition-all duration-300 group shadow-md shadow-orange-900/5"
                 >
-                  Open Booking Calendar
-                </a>
-              </div>
-            ) : (
-              <div className="space-y-6">
-                 <p className="text-slate-300">A listener is available and waiting for you right now.</p>
-                 <a
-                  href="#"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="block w-full py-4 bg-amber-500 text-amber-950 rounded-xl font-bold hover:bg-amber-400 transition-colors flex justify-center items-center space-x-2"
-                >
-                  <Zap className="w-5 h-5" />
-                  <span>Join Session Now</span>
-                </a>
-              </div>
-            )}
-          </div>
-          
-           <button 
-              onClick={() => {
-                setStep("landing");
-                setSelectedDuration(null);
-                setSelectedMode(null);
-              }}
-              className="text-slate-500 text-sm hover:text-slate-300 transition-colors mx-auto block mt-8"
+                  {opt.label && (
+                    <span className="absolute -top-3 left-6 px-3 py-1 text-[10px] uppercase font-bold tracking-wider rounded-full bg-orange-100 text-orange-700 border border-orange-200 shadow-sm">
+                      {opt.label}
+                    </span>
+                  )}
+                  <div className="flex items-center space-x-4">
+                    <div className="p-3 bg-orange-50 rounded-xl group-hover:scale-110 group-hover:bg-orange-100 transition-all duration-300 border border-orange-100/50">
+                      <Clock className="w-6 h-6 text-orange-500 group-hover:text-orange-600" />
+                    </div>
+                    <span className="text-xl font-medium text-slate-800 tracking-wide">{opt.mins} Mins</span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-2xl font-bold text-slate-900 group-hover:text-orange-600 transition-colors">₹{opt.price}</span>
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            <button 
+              onClick={() => setStep("mode_selection")}
+              className="text-slate-400 text-sm hover:text-slate-600 transition-colors mx-auto block mt-8 font-medium"
             >
-              Return to Home
+              ← Back
             </button>
-        </div>
-      )}
+          </motion.div>
+        )}
+
+        {/* ----------- STEP 4: PAYMENT ----------- */}
+        {step === "payment" && selectedDuration && (
+          <motion.div 
+            key="payment"
+            variants={fadeVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            className="w-full max-w-md mx-auto"
+          >
+            <div className="bg-white border border-orange-100 rounded-3xl p-8 text-center space-y-8 shadow-2xl shadow-orange-900/10 relative overflow-hidden">
+              {isVerifying && (
+                <div className="absolute inset-0 z-10 bg-white/90 backdrop-blur-sm flex flex-col items-center justify-center">
+                  <Loader2 className="w-12 h-12 text-orange-500 animate-spin mb-4" />
+                  <p className="text-orange-600 font-medium animate-pulse">Verifying payment...</p>
+                </div>
+              )}
+              <div className="space-y-2">
+                <h2 className="text-2xl font-bold text-slate-900">Complete Payment</h2>
+                <p className="text-slate-600">Scan to pay exactly <strong className="text-slate-900">₹{selectedDuration.price}</strong> for {selectedDuration.mins} mins.</p>
+              </div>
+
+              {/* Dummy QR Code UI */}
+              <div className="bg-white p-4 rounded-3xl inline-block mx-auto shadow-xl shadow-orange-900/5 relative group border border-slate-100">
+                <div className="w-48 h-48 bg-slate-50 rounded-2xl flex flex-col items-center justify-center border-2 border-dashed border-slate-200 group-hover:border-orange-300 transition-colors">
+                  <QrCode className="w-16 h-16 text-slate-300 mb-2" />
+                  <span className="text-xs text-slate-400 font-medium">Dummy QR</span>
+                </div>
+              </div>
+
+              <div className="bg-orange-50 p-4 rounded-2xl border border-orange-100 text-sm text-slate-600 break-all flex items-center justify-center space-x-2">
+                <span>UPI ID: <strong className="text-slate-800 selection:bg-orange-200 tracking-wide">nighttalk@upi</strong></span>
+              </div>
+
+              <div className="pt-4 border-t border-slate-100">
+                <p className="text-xs text-slate-500 mb-6 px-4">After paying, click the button below to secure your session.</p>
+                <Button
+                  onClick={handlePaymentComplete}
+                  disabled={isVerifying}
+                  className="w-full py-6 rounded-xl bg-gradient-to-r from-emerald-400 to-emerald-500 hover:from-emerald-500 hover:to-emerald-600 text-white shadow-[0_0_30px_-5px_rgba(16,185,129,0.3)] transition-all duration-300 text-base font-bold hover:scale-[1.02]"
+                >
+                  <CheckCircle2 className="w-5 h-5 mr-2" />
+                  <span>I have made the payment</span>
+                </Button>
+              </div>
+              
+              <button 
+                onClick={() => setStep("duration_selection")}
+                disabled={isVerifying}
+                className="text-slate-400 text-sm hover:text-slate-600 transition-colors mx-auto block disabled:opacity-50 font-medium"
+              >
+                Cancel
+              </button>
+            </div>
+          </motion.div>
+        )}
+
+        {/* ----------- STEP 5: BOOKING CONNECT ----------- */}
+        {step === "booking" && (
+          <motion.div 
+            key="booking"
+            variants={fadeVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            className="w-full max-w-md mx-auto text-center space-y-8"
+          >
+             <motion.div 
+              initial={{ scale: 0 }} 
+              animate={{ scale: 1 }} 
+              transition={{ type: "spring", delay: 0.2 }}
+              className="w-20 h-20 bg-emerald-500/10 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-6 ring-4 ring-emerald-500/20"
+             >
+              <CheckCircle2 className="w-10 h-10" />
+            </motion.div>
+            
+            <div className="space-y-4">
+              <h2 className="text-3xl font-bold text-slate-900">Payment Confirmed</h2>
+              <p className="text-slate-600 text-lg">Your safe space is booked successfully.</p>
+            </div>
+
+            <div className="p-8 bg-white border border-orange-100 rounded-3xl mt-8 shadow-xl shadow-orange-900/5">
+              {selectedMode === "Scheduled" ? (
+                <div className="space-y-6">
+                  <p className="text-slate-600">Pick a time slot for your {selectedDuration?.mins}-minute session using our calendar.</p>
+                  <Button
+                    onClick={() => router.push('/dashboard/user')}
+                    className="w-full h-14 bg-orange-500 text-white rounded-xl font-medium hover:bg-orange-600 transition-colors text-base shadow-md shadow-orange-500/20"
+                  >
+                    Open Booking Calendar
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                   <p className="text-slate-600">A listener has been assigned and is ready for you now.</p>
+                   <Button
+                    onClick={() => router.push('/dashboard/user')}
+                    className="w-full h-14 bg-rose-500 text-white rounded-xl font-bold hover:bg-rose-600 transition-colors text-base shadow-md shadow-rose-500/20"
+                  >
+                    <Zap className="w-5 h-5 mr-2" />
+                    <span>Join Session Now</span>
+                  </Button>
+                </div>
+              )}
+            </div>
+            
+             <button 
+                onClick={() => {
+                  setStep("landing");
+                  setSelectedDuration(null);
+                  setSelectedMode(null);
+                }}
+                className="text-slate-400 text-sm hover:text-slate-600 transition-colors mx-auto block mt-8 font-medium"
+              >
+                Return to Home
+              </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
       
       {/* Footer Disclaimer */}
       {(step === "landing" || step === "mode_selection") && (
-         <div className="fixed bottom-6 left-0 right-0 text-center px-4 w-full">
-            <p className="text-xs text-slate-600 max-w-xl mx-auto">
-              <strong>Disclaimer:</strong> NightTalk is a listening service for emotional companionship. It is not a substitute for therapy or medical/mental health treatment. If you are in a crisis, please contact local emergency services immediately.
+         <motion.div 
+           initial={{ opacity: 0 }}
+           animate={{ opacity: 1 }}
+           className="fixed bottom-6 left-0 right-0 text-center px-4 w-full"
+         >
+            <p className="text-xs text-slate-500 max-w-xl mx-auto">
+              <strong>Disclaimer:</strong> NightTalk is a listening service for emotional companionship. It is not a substitute for therapy or medical/mental health treatment. If you are in crisis, please contact local emergency services immediately.
             </p>
-         </div>
+         </motion.div>
       )}
 
     </main>

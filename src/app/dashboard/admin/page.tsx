@@ -1,21 +1,28 @@
 "use client";
 
-import { useState } from "react";
-import { Zap, Users, Settings, Activity, CalendarClock, PhoneOutgoing, BellElectric } from "lucide-react";
+import { Zap, Users, Settings, Activity, CalendarClock, PhoneOutgoing, BellElectric, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { useNightTalkStore, Session } from "@/store/useNightTalkStore";
+import { useState } from "react";
 
 export default function AdminDashboard() {
-  // Static state toggles and mocks for MVP Admin
-  const [isInstantActive, setIsInstantActive] = useState(false);
+  const { isInstantActive, toggleInstantActive, sessions, updateSessionStatus } = useNightTalkStore();
+  const [loadingId, setLoadingId] = useState<string | null>(null);
 
-  // Mocks representing sessions waiting for the listener
-  const assignedSessions = [
-    { id: 101, user: "Anonymous 44", mode: "Instant", duration: "15 mins", time: "Waiting now", status: "pending" },
-    { id: 102, user: "Anonymous 12", mode: "Scheduled", duration: "20 mins", time: "Tonight, 11:30 PM", status: "upcoming" }
-  ];
+  const assignedSessions = sessions.filter(
+    (s) => s.status === "pending" || s.status === "upcoming"
+  );
+
+  const handleAccept = (id: string) => {
+    setLoadingId(id);
+    setTimeout(() => {
+      updateSessionStatus(id, "active");
+      setLoadingId(null);
+    }, 1500); // Simulated delay
+  };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-200 font-sans">
+    <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-indigo-500/30">
       
       {/* Top Navigation */}
       <nav className="border-b border-slate-800 bg-slate-900/50 backdrop-blur-md sticky top-0 z-50">
@@ -59,7 +66,7 @@ export default function AdminDashboard() {
             </div>
 
             <button
-              onClick={() => setIsInstantActive(!isInstantActive)}
+              onClick={toggleInstantActive}
               className={`relative z-10 w-full md:w-auto px-8 py-4 rounded-xl flex items-center justify-center space-x-3 font-bold transition-all ${
                 isInstantActive
                   ? "bg-rose-500/10 text-rose-500 border border-rose-500/50 hover:bg-rose-500/20"
@@ -99,9 +106,22 @@ export default function AdminDashboard() {
                     </div>
                     <span className="px-3 py-1 bg-amber-500/20 text-amber-400 text-xs font-bold uppercase rounded-full">ACTION REQUIRED</span>
                   </div>
-                  <button className="w-full flex justify-center items-center gap-2 py-3 bg-amber-500 text-amber-950 hover:bg-amber-400 transition-colors rounded-xl font-bold">
-                    <PhoneOutgoing className="w-4 h-4" />
-                    Launch Meet & Accept
+                  <button 
+                    onClick={() => handleAccept(session.id)}
+                    disabled={loadingId === session.id}
+                    className="w-full h-12 flex justify-center items-center gap-2 bg-amber-500 text-amber-950 hover:bg-amber-400 transition-colors rounded-xl font-bold disabled:opacity-50"
+                  >
+                    {loadingId === session.id ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Connecting...
+                      </>
+                    ) : (
+                      <>
+                        <PhoneOutgoing className="w-4 h-4" />
+                        Launch Meet & Accept
+                      </>
+                    )}
                   </button>
                </div>
              ))}
@@ -132,6 +152,11 @@ export default function AdminDashboard() {
                   </div>
                </div>
              ))}
+             {assignedSessions.filter(s => s.mode === "Scheduled").length === 0 && (
+                <div className="p-8 text-center border border-slate-800 rounded-2xl border-dashed">
+                   <p className="text-slate-500">No scheduled calls</p>
+                </div>
+             )}
           </div>
 
         </div>
