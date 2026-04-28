@@ -82,9 +82,9 @@ export default function Home() {
     <main className="flex-1 flex flex-col items-center justify-center p-6 md:p-12 max-w-2xl mx-auto w-full relative z-10 min-h-[calc(100vh-64px)] overflow-hidden">
       
       {/* Background FX (Smooth dynamic gradient) */}
-      <div className="fixed inset-0 pointer-events-none z-[-1] overflow-hidden bg-orange-50/50">
-        <div className="absolute top-[-10%] left-[-10%] w-[60vw] h-[60vw] max-w-[800px] max-h-[800px] bg-orange-300/30 rounded-full blur-[120px] mix-blend-multiply animate-pulse" style={{ animationDuration: '8s' }} />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] max-w-[600px] max-h-[600px] bg-rose-300/30 rounded-full blur-[100px] mix-blend-multiply animate-pulse" style={{ animationDuration: '10s' }} />
+      <div className="fixed inset-0 pointer-events-none z-[-1] overflow-hidden bg-rose-50/50">
+        <div className="absolute top-[-10%] left-[-10%] w-[60vw] h-[60vw] max-w-[800px] max-h-[800px] bg-rose-200/40 rounded-full blur-[120px] mix-blend-multiply animate-pulse" style={{ animationDuration: '8s' }} />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] max-w-[600px] max-h-[600px] bg-pink-200/40 rounded-full blur-[100px] mix-blend-multiply animate-pulse" style={{ animationDuration: '10s' }} />
       </div>
 
       <AnimatePresence mode="wait">
@@ -98,9 +98,9 @@ export default function Home() {
             exit="exit"
             className="flex flex-col items-center text-center space-y-8 mt-12"
           >
-            <div className="p-5 bg-white shadow-xl shadow-orange-500/10 rounded-3xl border border-orange-100 relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-tr from-orange-100 to-transparent" />
-              <Moon className="w-14 h-14 text-orange-500 relative z-10" />
+            <div className="p-5 bg-white shadow-xl shadow-rose-500/10 rounded-3xl border border-rose-100 relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-tr from-rose-100 to-transparent" />
+              <Moon className="w-14 h-14 text-rose-400 relative z-10" />
             </div>
             <div className="space-y-5">
               <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-slate-900 drop-shadow-sm">
@@ -108,7 +108,7 @@ export default function Home() {
               </h1>
               <p className="text-xl md:text-2xl font-light text-slate-600 max-w-xl mx-auto leading-relaxed">
                 You don’t need solutions. <br className="hidden md:block" />
-                <span className="text-orange-600 font-medium tracking-wide">You just need someone to listen.</span>
+                <span className="text-rose-500 font-medium tracking-wide">You just need someone to listen.</span>
               </p>
             </div>
             
@@ -116,14 +116,14 @@ export default function Home() {
               <Button
                 size="lg"
                 onClick={handleStart}
-                className="group w-full sm:w-auto h-14 rounded-full px-10 text-lg bg-gradient-to-r from-orange-400 to-rose-400 hover:from-orange-500 hover:to-rose-500 text-white shadow-[0_0_30px_-5px_rgba(251,146,60,0.4)] hover:shadow-[0_0_40px_0px_rgba(251,146,60,0.6)] transition-all duration-300 hover:scale-105 border border-orange-200"
+                className="group w-full sm:w-auto h-14 rounded-full px-10 text-lg bg-gradient-to-r from-rose-400 to-pink-400 hover:from-rose-500 hover:to-pink-500 text-white shadow-[0_0_30px_-5px_rgba(244,63,94,0.3)] hover:shadow-[0_0_40px_0px_rgba(244,63,94,0.5)] transition-all duration-300 hover:scale-105 border border-rose-200"
               >
                 <span className="mr-3">Start Talking</span>
                 <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
               </Button>
             </div>
 
-            <div className="mt-16 flex items-center justify-center space-x-2 text-sm text-slate-600 bg-white/80 px-5 py-2.5 rounded-full border border-orange-200/60 backdrop-blur-sm shadow-sm">
+            <div className="mt-16 flex items-center justify-center space-x-2 text-sm text-slate-600 bg-white/80 px-5 py-2.5 rounded-full border border-rose-200/60 backdrop-blur-sm shadow-sm">
               <ShieldCheck className="w-4 h-4 text-emerald-500" />
               <span>100% Anonymous. Safe space. No judgment.</span>
             </div>
@@ -148,10 +148,10 @@ export default function Home() {
             <div className="grid md:grid-cols-2 gap-5">
               <button
                 onClick={() => handleModeSelect("Scheduled")}
-                className="flex flex-col text-left p-6 md:p-8 rounded-3xl border border-orange-100 bg-white hover:bg-orange-50 hover:border-orange-200 transition-all duration-300 group shadow-xl shadow-orange-900/5"
+                className="flex flex-col text-left p-6 md:p-8 rounded-3xl border border-rose-100 bg-white hover:bg-rose-50 hover:border-rose-200 transition-all duration-300 group shadow-xl shadow-rose-900/5"
               >
-                <div className="mb-5 p-3 bg-orange-100 rounded-2xl w-fit group-hover:scale-110 group-hover:bg-orange-200 transition-all duration-300">
-                  <Clock className="w-7 h-7 text-orange-600" />
+                <div className="mb-5 p-3 bg-rose-100 rounded-2xl w-fit group-hover:scale-110 group-hover:bg-rose-200 transition-all duration-300">
+                  <Clock className="w-7 h-7 text-rose-500" />
                 </div>
                 <h3 className="text-xl font-semibold text-slate-900 mb-2 tracking-wide">Scheduled Session</h3>
                 <p className="text-sm text-slate-500 leading-relaxed">Book in advance. Structured availability. Lower pricing.</p>
@@ -162,17 +162,17 @@ export default function Home() {
                 disabled={!isInstantActive}
                 className={`flex flex-col text-left p-6 md:p-8 rounded-3xl border transition-all duration-300 group shadow-xl ${
                   isInstantActive 
-                    ? "border-rose-200 bg-white hover:bg-rose-50 hover:border-rose-300 shadow-rose-900/5" 
+                    ? "border-pink-200 bg-white hover:bg-pink-50 hover:border-pink-300 shadow-pink-900/5" 
                     : "border-slate-200 bg-slate-50 opacity-60 cursor-not-allowed"
                 }`}
               >
-                <div className={`mb-5 p-3 rounded-2xl w-fit transition-all duration-300 ${isInstantActive ? 'bg-rose-100 group-hover:scale-110' : 'bg-slate-200'}`}>
-                  <Zap className={`w-7 h-7 ${isInstantActive ? 'text-rose-500 animate-pulse' : 'text-slate-400'}`} />
+                <div className={`mb-5 p-3 rounded-2xl w-fit transition-all duration-300 ${isInstantActive ? 'bg-pink-100 group-hover:scale-110' : 'bg-slate-200'}`}>
+                  <Zap className={`w-7 h-7 ${isInstantActive ? 'text-pink-500 animate-pulse' : 'text-slate-400'}`} />
                 </div>
                 <h3 className="text-xl font-semibold text-slate-900 mb-2 flex items-center justify-between w-full tracking-wide">
                   Instant Talk
                   {isInstantActive && (
-                    <span className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 bg-rose-100 border border-rose-200 text-rose-600 rounded-full mt-1">Available Now</span>
+                    <span className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 bg-pink-100 border border-pink-200 text-pink-600 rounded-full mt-1">Available Now</span>
                   )}
                 </h3>
                 <p className="text-sm text-slate-500 leading-relaxed">
@@ -214,21 +214,21 @@ export default function Home() {
                 <button
                   key={i}
                   onClick={() => handleDurationSelect(opt)}
-                  className="w-full relative flex items-center justify-between p-5 rounded-2xl border border-orange-100 bg-white hover:border-orange-300 hover:bg-orange-50 hover:shadow-lg transition-all duration-300 group shadow-md shadow-orange-900/5"
+                  className="w-full relative flex items-center justify-between p-5 rounded-2xl border border-rose-100 bg-white hover:border-rose-300 hover:bg-rose-50 hover:shadow-lg transition-all duration-300 group shadow-md shadow-rose-900/5"
                 >
                   {opt.label && (
-                    <span className="absolute -top-3 left-6 px-3 py-1 text-[10px] uppercase font-bold tracking-wider rounded-full bg-orange-100 text-orange-700 border border-orange-200 shadow-sm">
+                    <span className="absolute -top-3 left-6 px-3 py-1 text-[10px] uppercase font-bold tracking-wider rounded-full bg-rose-100 text-rose-700 border border-rose-200 shadow-sm">
                       {opt.label}
                     </span>
                   )}
                   <div className="flex items-center space-x-4">
-                    <div className="p-3 bg-orange-50 rounded-xl group-hover:scale-110 group-hover:bg-orange-100 transition-all duration-300 border border-orange-100/50">
-                      <Clock className="w-6 h-6 text-orange-500 group-hover:text-orange-600" />
+                    <div className="p-3 bg-rose-50 rounded-xl group-hover:scale-110 group-hover:bg-rose-100 transition-all duration-300 border border-rose-100/50">
+                      <Clock className="w-6 h-6 text-rose-500 group-hover:text-rose-600" />
                     </div>
                     <span className="text-xl font-medium text-slate-800 tracking-wide">{opt.mins} Mins</span>
                   </div>
                   <div className="text-right">
-                    <span className="text-2xl font-bold text-slate-900 group-hover:text-orange-600 transition-colors">₹{opt.price}</span>
+                    <span className="text-2xl font-bold text-slate-900 group-hover:text-rose-600 transition-colors">₹{opt.price}</span>
                   </div>
                 </button>
               ))}
@@ -253,11 +253,11 @@ export default function Home() {
             exit="exit"
             className="w-full max-w-md mx-auto"
           >
-            <div className="bg-white border border-orange-100 rounded-3xl p-8 text-center space-y-8 shadow-2xl shadow-orange-900/10 relative overflow-hidden">
+            <div className="bg-white border border-rose-100 rounded-3xl p-8 text-center space-y-8 shadow-2xl shadow-rose-900/10 relative overflow-hidden">
               {isVerifying && (
                 <div className="absolute inset-0 z-10 bg-white/90 backdrop-blur-sm flex flex-col items-center justify-center">
-                  <Loader2 className="w-12 h-12 text-orange-500 animate-spin mb-4" />
-                  <p className="text-orange-600 font-medium animate-pulse">Verifying payment...</p>
+                  <Loader2 className="w-12 h-12 text-rose-500 animate-spin mb-4" />
+                  <p className="text-rose-600 font-medium animate-pulse">Verifying payment...</p>
                 </div>
               )}
               <div className="space-y-2">
@@ -266,15 +266,15 @@ export default function Home() {
               </div>
 
               {/* Dummy QR Code UI */}
-              <div className="bg-white p-4 rounded-3xl inline-block mx-auto shadow-xl shadow-orange-900/5 relative group border border-slate-100">
-                <div className="w-48 h-48 bg-slate-50 rounded-2xl flex flex-col items-center justify-center border-2 border-dashed border-slate-200 group-hover:border-orange-300 transition-colors">
+              <div className="bg-white p-4 rounded-3xl inline-block mx-auto shadow-xl shadow-rose-900/5 relative group border border-slate-100">
+                <div className="w-48 h-48 bg-slate-50 rounded-2xl flex flex-col items-center justify-center border-2 border-dashed border-slate-200 group-hover:border-rose-300 transition-colors">
                   <QrCode className="w-16 h-16 text-slate-300 mb-2" />
                   <span className="text-xs text-slate-400 font-medium">Dummy QR</span>
                 </div>
               </div>
 
-              <div className="bg-orange-50 p-4 rounded-2xl border border-orange-100 text-sm text-slate-600 break-all flex items-center justify-center space-x-2">
-                <span>UPI ID: <strong className="text-slate-800 selection:bg-orange-200 tracking-wide">nighttalk@upi</strong></span>
+              <div className="bg-rose-50 p-4 rounded-2xl border border-rose-100 text-sm text-slate-600 break-all flex items-center justify-center space-x-2">
+                <span>UPI ID: <strong className="text-slate-800 selection:bg-pink-200 tracking-wide">nighttalk@upi</strong></span>
               </div>
 
               <div className="pt-4 border-t border-slate-100">
@@ -324,13 +324,13 @@ export default function Home() {
               <p className="text-slate-600 text-lg">Your safe space is booked successfully.</p>
             </div>
 
-            <div className="p-8 bg-white border border-orange-100 rounded-3xl mt-8 shadow-xl shadow-orange-900/5">
+            <div className="p-8 bg-white border border-rose-100 rounded-3xl mt-8 shadow-xl shadow-rose-900/5">
               {selectedMode === "Scheduled" ? (
                 <div className="space-y-6">
                   <p className="text-slate-600">Pick a time slot for your {selectedDuration?.mins}-minute session using our calendar.</p>
                   <Button
                     onClick={() => router.push('/dashboard/user')}
-                    className="w-full h-14 bg-orange-500 text-white rounded-xl font-medium hover:bg-orange-600 transition-colors text-base shadow-md shadow-orange-500/20"
+                    className="w-full h-14 bg-rose-500 text-white rounded-xl font-medium hover:bg-rose-600 transition-colors text-base shadow-md shadow-rose-500/20"
                   >
                     Open Booking Calendar
                   </Button>
@@ -340,7 +340,7 @@ export default function Home() {
                    <p className="text-slate-600">A listener has been assigned and is ready for you now.</p>
                    <Button
                     onClick={() => router.push('/dashboard/user')}
-                    className="w-full h-14 bg-rose-500 text-white rounded-xl font-bold hover:bg-rose-600 transition-colors text-base shadow-md shadow-rose-500/20"
+                    className="w-full h-14 bg-pink-500 text-white rounded-xl font-bold hover:bg-pink-600 transition-colors text-base shadow-md shadow-pink-500/20"
                   >
                     <Zap className="w-5 h-5 mr-2" />
                     <span>Join Session Now</span>

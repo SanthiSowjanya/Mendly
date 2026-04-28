@@ -26,13 +26,13 @@ export default function UserDashboard() {
       <div className="max-w-4xl mx-auto space-y-12">
         
         {/* Header */}
-        <header className="flex items-center justify-between border-b border-orange-200 pb-8">
+        <header className="flex items-center justify-between border-b border-rose-200 pb-8">
           <div>
             <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Welcome back</h1>
             <p className="text-slate-500 mt-1">Your safe space awaits.</p>
           </div>
-          <div className="p-3 bg-white rounded-full border border-orange-200 shadow-sm">
-            <UserCircle className="w-8 h-8 text-orange-400" />
+          <div className="p-3 bg-white rounded-full border border-rose-200 shadow-sm">
+            <UserCircle className="w-8 h-8 text-rose-400" />
           </div>
         </header>
 
@@ -43,24 +43,24 @@ export default function UserDashboard() {
             
             {/* Upcoming Sessions */}
             <section className="space-y-4">
-              <div className="flex items-center space-x-2 text-orange-500">
+              <div className="flex items-center space-x-2 text-rose-500">
                 <Calendar className="w-5 h-5" />
                 <h2 className="text-xl font-semibold text-slate-900">Upcoming Sessions</h2>
               </div>
               
               {upcomingSessions.length === 0 && (
-                <div className="p-8 text-center bg-white border border-orange-200 rounded-2xl border-dashed">
+                <div className="p-8 text-center bg-white border border-rose-200 rounded-2xl border-dashed">
                   <p className="text-slate-500">No upcoming sessions</p>
                 </div>
               )}
 
               {upcomingSessions.map((session) => (
-                <div key={session.id} className="p-6 rounded-2xl bg-white shadow-md shadow-orange-900/5 border border-orange-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div key={session.id} className="p-6 rounded-2xl bg-white shadow-md shadow-rose-900/5 border border-rose-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div>
                     <p className="text-slate-900 font-medium text-lg">{session.time}</p>
                     <p className="text-slate-500 text-sm mt-1">{session.duration} • {session.mode}</p>
                   </div>
-                  <button className="px-5 py-2.5 bg-orange-500 hover:bg-orange-600 shadow-md shadow-orange-500/20 text-white text-sm font-medium rounded-xl transition-colors">
+                  <button className="px-5 py-2.5 bg-rose-500 hover:bg-rose-600 shadow-md shadow-rose-500/20 text-white text-sm font-medium rounded-xl transition-colors">
                     Join Waiting Room
                   </button>
                 </div>
@@ -89,23 +89,23 @@ export default function UserDashboard() {
 
           {/* Sidebar / Quick Actions */}
           <div className="space-y-6">
-            <div className="p-6 rounded-3xl bg-gradient-to-br from-orange-400 to-rose-400 border border-orange-200 shadow-xl shadow-orange-500/20 text-white">
+            <div className="p-6 rounded-3xl bg-gradient-to-br from-rose-400 to-pink-400 border border-rose-200 shadow-xl shadow-rose-500/20 text-white">
               <h3 className="text-lg font-bold mb-2">Need someone to listen?</h3>
-              <p className="text-sm text-orange-50 mb-6 pb-6 border-b border-orange-300/30">
+              <p className="text-sm text-rose-50 mb-6 pb-6 border-b border-rose-300/30">
                 {isInstantActive 
                   ? "Listeners are currently online and available for instant connection."
                   : "All listeners are currently offline. Check back later or schedule a session."}
               </p>
               
               {isInstantActive && (
-                <Link href="/" className="w-full flex items-center justify-center space-x-2 py-3.5 bg-white text-orange-600 font-bold rounded-xl hover:bg-orange-50 transition-all shadow-md">
+                <Link href="/" className="w-full flex items-center justify-center space-x-2 py-3.5 bg-white text-rose-600 font-bold rounded-xl hover:bg-rose-50 transition-all shadow-md">
                   <span>Talk Now</span>
                   <ArrowRight className="w-4 h-4" />
                 </Link>
               )}
             </div>
             
-             <div className="p-6 rounded-3xl bg-orange-100/50 border border-orange-200 text-center">
+             <div className="p-6 rounded-3xl bg-rose-100/50 border border-rose-200 text-center">
               <p className="text-xs text-slate-500 leading-relaxed">
                 NightTalk is a safe, anonymous space. All sessions are strictly confidential.
               </p>
