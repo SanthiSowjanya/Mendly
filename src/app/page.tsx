@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Moon, Clock, Zap, ArrowRight, ShieldCheck, CheckCircle2, QrCode, Loader2 } from "lucide-react";
@@ -31,6 +31,18 @@ export default function Home() {
   const [isVerifying, setIsVerifying] = useState(false);
 
   const { isInstantActive, addSession } = useNightTalkStore();
+
+  const [particles, setParticles] = useState<{id: number, size: number, left: string, top: string, duration: number, delay: number}[]>([]);
+  useEffect(() => {
+    setParticles(Array.from({ length: 15 }).map((_, i) => ({
+      id: i,
+      size: Math.random() * 20 + 10,
+      left: `${Math.random() * 100}%`,
+      top: `${Math.random() * 100}%`,
+      duration: Math.random() * 20 + 10,
+      delay: Math.random() * 5,
+    })));
+  }, []);
 
   const handleStart = () => setStep("mode_selection");
   
@@ -81,10 +93,36 @@ export default function Home() {
   return (
     <main className="flex-1 flex flex-col items-center justify-center p-6 md:p-12 max-w-2xl mx-auto w-full relative z-10 min-h-[calc(100vh-64px)] overflow-hidden">
       
-      {/* Background FX (Smooth dynamic gradient) */}
+      {/* Background FX (Smooth dynamic gradient & Particles) */}
       <div className="fixed inset-0 pointer-events-none z-[-1] overflow-hidden bg-rose-50/50">
-        <div className="absolute top-[-10%] left-[-10%] w-[60vw] h-[60vw] max-w-[800px] max-h-[800px] bg-rose-200/40 rounded-full blur-[120px] mix-blend-multiply animate-pulse" style={{ animationDuration: '8s' }} />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] max-w-[600px] max-h-[600px] bg-pink-200/40 rounded-full blur-[100px] mix-blend-multiply animate-pulse" style={{ animationDuration: '10s' }} />
+        <motion.div 
+          animate={{ x: [0, 50, 0], y: [0, 30, 0] }}
+          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+          className="absolute top-[-10%] left-[-10%] w-[60vw] h-[60vw] max-w-[800px] max-h-[800px] bg-rose-200/40 rounded-full blur-[120px] mix-blend-multiply" 
+        />
+        <motion.div 
+          animate={{ x: [0, -40, 0], y: [0, 50, 0] }}
+          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+          className="absolute bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] max-w-[600px] max-h-[600px] bg-pink-200/40 rounded-full blur-[100px] mix-blend-multiply" 
+        />
+        
+        {particles.map((p) => (
+          <motion.div
+            key={p.id}
+            className="absolute rounded-full bg-pink-300/30 blur-[1px]"
+            style={{ width: p.size, height: p.size, left: p.left, top: p.top }}
+            animate={{
+              y: [0, -100, 0],
+              opacity: [0.1, 0.5, 0.1],
+            }}
+            transition={{
+              duration: p.duration,
+              delay: p.delay,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          />
+        ))}
       </div>
 
       <AnimatePresence mode="wait">
@@ -146,7 +184,9 @@ export default function Home() {
             </div>
 
             <div className="grid md:grid-cols-2 gap-5">
-              <button
+              <motion.button
+                whileHover={{ scale: 1.02, y: -5 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => handleModeSelect("Scheduled")}
                 className="flex flex-col text-left p-6 md:p-8 rounded-3xl border border-rose-100 bg-white hover:bg-rose-50 hover:border-rose-200 transition-all duration-300 group shadow-xl shadow-rose-900/5"
               >
@@ -155,9 +195,11 @@ export default function Home() {
                 </div>
                 <h3 className="text-xl font-semibold text-slate-900 mb-2 tracking-wide">Scheduled Session</h3>
                 <p className="text-sm text-slate-500 leading-relaxed">Book in advance. Structured availability. Lower pricing.</p>
-              </button>
+              </motion.button>
 
-              <button
+              <motion.button
+                whileHover={isInstantActive ? { scale: 1.02, y: -5 } : {}}
+                whileTap={isInstantActive ? { scale: 0.98 } : {}}
                 onClick={() => isInstantActive ? handleModeSelect("Instant") : null}
                 disabled={!isInstantActive}
                 className={`flex flex-col text-left p-6 md:p-8 rounded-3xl border transition-all duration-300 group shadow-xl ${
@@ -180,7 +222,7 @@ export default function Home() {
                     ? "Talk immediately to an available listener." 
                     : "Listeners are currently offline. Please use scheduled."}
                 </p>
-              </button>
+              </motion.button>
             </div>
             
             <button 
@@ -211,7 +253,9 @@ export default function Home() {
 
             <div className="space-y-4">
               {currentOptions.map((opt, i) => (
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.02, x: 5 }}
+                  whileTap={{ scale: 0.98 }}
                   key={i}
                   onClick={() => handleDurationSelect(opt)}
                   className="w-full relative flex items-center justify-between p-5 rounded-2xl border border-rose-100 bg-white hover:border-rose-300 hover:bg-rose-50 hover:shadow-lg transition-all duration-300 group shadow-md shadow-rose-900/5"
@@ -230,7 +274,7 @@ export default function Home() {
                   <div className="text-right">
                     <span className="text-2xl font-bold text-slate-900 group-hover:text-rose-600 transition-colors">₹{opt.price}</span>
                   </div>
-                </button>
+                </motion.button>
               ))}
             </div>
 
